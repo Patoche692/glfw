@@ -1,4 +1,6 @@
 
+option(GLFW_UPDATE_MAPPINGS "Update built-in mappings" OFF)
+
 add_library(glfw ${GLFW_LIBRARY_TYPE}
                  "${GLFW_SOURCE_DIR}/include/GLFW/glfw3.h"
                  "${GLFW_SOURCE_DIR}/include/GLFW/glfw3native.h"
@@ -20,14 +22,16 @@ else()
                                 posix_time.c posix_thread.c)
 endif()
 
-add_custom_target(update_mappings
-    COMMAND "${CMAKE_COMMAND}" -P "${GLFW_SOURCE_DIR}/CMake/GenerateMappings.cmake" mappings.h.in mappings.h
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Updating gamepad mappings from upstream repository"
-    SOURCES mappings.h.in "${GLFW_SOURCE_DIR}/CMake/GenerateMappings.cmake"
-    VERBATIM)
+if (GLFW_UPDATE_MAPPINGS)
+    add_custom_target(update_mappings
+        COMMAND "${CMAKE_COMMAND}" -P "${GLFW_SOURCE_DIR}/CMake/GenerateMappings.cmake" mappings.h.in mappings.h
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Updating gamepad mappings from upstream repository"
+        SOURCES mappings.h.in "${GLFW_SOURCE_DIR}/CMake/GenerateMappings.cmake"
+        VERBATIM)
 
-set_target_properties(update_mappings PROPERTIES FOLDER "GLFW3")
+    set_target_properties(update_mappings PROPERTIES FOLDER "GLFW3")
+endif()
 
 if (GLFW_BUILD_COCOA)
     target_compile_definitions(glfw PRIVATE _GLFW_COCOA)
